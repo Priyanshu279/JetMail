@@ -75,7 +75,7 @@ If an email fails to send, the script logs the error with the recipient's email.
 # Important Notes
 Avoid Spamming:
 Send emails responsibly.
-Use a delay between emails (configured in the script) to prevent Gmail from flagging your account.
+Use a delay between emails (configured in the script) to prevent Gmail from flagging your account,Gmail allows a maximum of 500 emails in a 24-hour period. For higher email volumes, consider using Google Workspace, which supports larger limits.
 
 # Contribute
 If you’d like to contribute, feel free to fork the repository and submit a pull request.
