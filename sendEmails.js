@@ -1,38 +1,44 @@
-const fs = require('fs');
-const xlsx = require('xlsx');
-const nodemailer = require('nodemailer');
-const { exit } = require('process');
+// Import required modules
+const fs = require('fs'); // File system module for reading files
+const xlsx = require('xlsx'); // Library for working with Excel files
+const nodemailer = require('nodemailer'); // Library for sending emails
+const { exit } = require('process'); // Used to terminate the script
 // download the above packages
 
 // Load your Excel file
 const workbook = xlsx.readFile('./list.xlsx'); // Path for the sheet in your local folder
 const sheetName = 'Sheet1'; // Change to the name of your sheet
-const worksheet = workbook.Sheets[sheetName];
-const data = xlsx.utils.sheet_to_json(worksheet);
+const worksheet = workbook.Sheets[sheetName]; // Access the specified sheet
+const data = xlsx.utils.sheet_to_json(worksheet); // Convert the sheet data to JSON format
 
 // Email configuration
 const newTransporter = ()=>{
+  // Create a transporter for sending emails
   return nodemailer.createTransport({
-    pool: true,
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+    pool: true, // Use pooled connections for better performance
+    host: "smtp.gmail.com", // SMTP server for Gmail
+    port: 465, // Port for secure email
+    secure: true, // Use SSL for secure connection
     auth: {
-
-      user: "your-email@gmail.com",
-      pass: "pass pass pass pass"
+      user: "your-email@gmail.com",// Your Gmail address
+      pass: "pass pass pass pass"// Your Gmail app password (not your email password)
     },
   });
 }
-const transporter = newTransporter();
+const transporter = newTransporter(); // Initialize the transporter
+
+// Function to send an individual email
 const sendEmail = async (row) => {
-  const { Name, Company, Email, Role} = row; // Adjust column names accordingly
-  const nameParts = Name.split(' ');
-  const name = nameParts[0];
+  // Extract relevant data from the row
+  const { Name, Company, Email, Role} = row; // Adjust column names accordingly in your excel sheet
+  const nameParts = Name.split(' '); // Split the name into parts
+  const name = nameParts[0]; // Use the first name for a personalized greeting
+
+  // Define email options
   const mailOptions = {
-    from: 'Priyanshu Suryavanshi <your-email@gmail.com>',
-    to: Email,
-    subject: `Request for an Interview Opportunity - ${Role} at ${Company}`,
+    from: 'Priyanshu Suryavanshi <your-email@gmail.com>', // Sender information
+    to: Email,// Recipient email address
+    subject: `Request for an Interview Opportunity - ${Role} at ${Company}`, // Email subject
     html: `
 <p>Greetings ${name},</p>
 <p>I'm Priyanshu Suryavanshi, a Software Developer. I got to know through your linkedin post that <b>${Company}</b> is looking for a <b>${Role}</b>, therefore, I have mailed you to tell you about myself. I have: 
@@ -63,20 +69,22 @@ Regards,<br>
   };
 
   try {
+    // Send the email
     await transporter.sendMail(mailOptions);
-    console.log('Email sent to', Email);
+    console.log('Email sent to', Email); // Log success message
   } catch (error) {
-    console.error('Error sending email:', Email, error);
+    console.error('Error sending email:', Email, error);// Log error if email fails
   }
 };
 
+// Function to send emails one by one with a delay
 const sendEmailsSynchronously = async () => {
   for (const row of data) {
-    await sendEmail(row);
+    await sendEmail(row);// Send email to the current recipient
     await new Promise((resolve) => setTimeout(resolve, Math.random()*90000)); // Pause for 1 minute (adjust the duration as needed)
   }
-  console.log("Done Sending mails")
-  exit()
+  console.log("Done Sending mails");// Log completion message
+  exit(); // Exit the script
 };
 
 // Call the function to send emails
